@@ -1,8 +1,8 @@
 {
     "name": "glyph-lights.nonta",
-    "description": "Toggle Nothing Phone (1) glyph lights",
+    "description": "Control Nothing Phone (1) glyph lights",
     "title": "Glyph Lights",
-    "version": "1.0",
+    "version": "2.0",
     "maintainer": "Nonta COULIBALY <n.coulibaly@themalian.com>",
     "architecture": "all",
     "framework": "ubuntu-sdk-20.04",
