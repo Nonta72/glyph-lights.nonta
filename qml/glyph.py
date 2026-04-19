@@ -1,25 +1,40 @@
 import subprocess
 import os
 
-def set_glyph(state):
-    """Call glyph_ctrl with 'on' or 'off'. Returns True on success."""
+GLYPH_CTRL = '/usr/bin/glyph_ctrl'
+STATE_FILE = '/tmp/glyph_state'
+
+def set_glyph(value):
+    """
+    Set glyph brightness.
+    value: 'on', 'off', or an integer 0-4095.
+    Returns True on success.
+    """
     try:
-        result = subprocess.run(
-            ['/usr/bin/glyph_ctrl', state],
-            timeout=3
-        )
-        # Since the app is unconfined, QML should read from a well know and easily accessible location.
-        with open('/tmp/glyph_state', 'w') as f:
-            f.write('1' if state == 'on' else '0')
+        arg = str(value)
+        result = subprocess.run([GLYPH_CTRL, arg], timeout=3)
+        # Persist numeric brightness so we can restore the slider position
+        if arg == 'off':
+            saved = '0'
+        elif arg == 'on':
+            saved = '4095'
+        else:
+            saved = arg
+        with open(STATE_FILE, 'w') as f:
+            f.write(saved)
         return result.returncode == 0
     except Exception as e:
         print('glyph error: ' + str(e))
         return False
 
-def get_glyph_state():
-    """Read last known state from flag file. Returns True if on."""
+def get_glyph_brightness():
+    """
+    Read last known brightness from state file.
+    Returns an integer 0-4095.
+    """
     try:
-        with open('/tmp/glyph_state', 'r') as f:
-            return f.read().strip() == '1'
+        with open(STATE_FILE, 'r') as f:
+            val = int(f.read().strip())
+            return max(0, min(4095, val))
     except:
-        return False
+        return 0
